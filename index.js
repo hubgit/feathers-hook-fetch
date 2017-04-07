@@ -24,11 +24,11 @@ export default function (options) {
     }
 
     // returns a promise that resolves to the item
-    function computeProperties (item, options) {
+    async function computeProperties (item, options) {
       const properties = Object.keys(options)
 
       // process each property
-      properties.forEach(async property => {
+      const promises = properties.map(async property => {
         const propertyOptions = options[property]
 
         let data = await fetchProperty(propertyOptions.$fetch, item)
@@ -40,19 +40,23 @@ export default function (options) {
         }
 
         item[property] = data
+
+        return true
       })
 
-      return Promise.resolve(item)
+      await Promise.all(promises)
+
+      return item
     }
 
     // returns a promise that resolves to the data
-    function fetchProperty (fetcher, item) {
+    async function fetchProperty (fetcher, item) {
       try {
         return fetcher.call(item, hook.app)
       } catch (e) {
-        // console.error(e)
+        console.error(e)
         debug(e)
-        return Promise.resolve(null)
+        return null
       }
     }
   }
