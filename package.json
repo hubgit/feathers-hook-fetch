@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "A Feathers hook that populates properties with service results",
   "main": "dist/index.js",
+  "module": "index.js",
   "scripts": {
     "test": "jest test.js"
   },
