@@ -1,21 +1,22 @@
 const debug = require('debug')('feathers-hook-fetch')
 
 export default function (options) {
-  return function (hook) {
+  return async function (hook) {
     // return a promise that resolves to the hook
-    return computeResults(hook.result, options).then(result => {
-      hook.result = result
-      return hook
-    })
+    hook.result = await computeResults(hook.result, options)
+
+    return hook
 
     // returns a promise that resolves to an item (or array of items)
-    function computeResults (item, options) {
+    async function computeResults (item, options) {
       // an object with paginated items
       if (Array.isArray(item.data)) {
         // process each item concurrently
-        return Promise.all(item.data.map(item => {
+        item.data = await Promise.all(item.data.map(item => {
           return computeProperties(item, options)
         }))
+
+        return item
       }
 
       // a single item

@@ -114,8 +114,8 @@ describe('hook', function () {
         }
       }
     })(hook).then(() => {
-      expect(hook.result[0]._ownerUser).toEqual(users['user-1'])
-      expect(hook.result[1]._ownerUser).toEqual(users['user-2'])
+      expect(hook.result.data[0]._ownerUser).toEqual(users['user-1'])
+      expect(hook.result.data[1]._ownerUser).toEqual(users['user-2'])
     })
   })
 
