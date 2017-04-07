@@ -33,46 +33,66 @@ exports.default = function (options) {
       // returns a promise that resolves to the item
 
 
+      let computeProperties = (() => {
+        var _ref3 = _asyncToGenerator(function* (item, options) {
+          const properties = Object.keys(options);
+
+          // process each property
+          const promises = properties.map((() => {
+            var _ref4 = _asyncToGenerator(function* (property) {
+              const propertyOptions = options[property];
+
+              let data = yield fetchProperty(propertyOptions.$fetch, item);
+
+              delete propertyOptions.$fetch;
+
+              if (data !== null) {
+                data = yield computeResults(data, propertyOptions);
+              }
+
+              item[property] = data;
+
+              return true;
+            });
+
+            return function (_x6) {
+              return _ref4.apply(this, arguments);
+            };
+          })());
+
+          yield Promise.all(promises);
+
+          return item;
+        });
+
+        return function computeProperties(_x4, _x5) {
+          return _ref3.apply(this, arguments);
+        };
+      })();
+
+      // returns a promise that resolves to the data
+
+
+      let fetchProperty = (() => {
+        var _ref5 = _asyncToGenerator(function* (fetcher, item) {
+          try {
+            return fetcher.call(item, hook.app);
+          } catch (e) {
+            console.error(e);
+            debug(e);
+            return null;
+          }
+        });
+
+        return function fetchProperty(_x7, _x8) {
+          return _ref5.apply(this, arguments);
+        };
+      })();
+
       // return a promise that resolves to the hook
       hook.result = yield computeResults(hook.result, options);
 
-      return hook;function computeProperties(item, options) {
-        const properties = Object.keys(options);
-
-        // process each property
-        properties.forEach((() => {
-          var _ref3 = _asyncToGenerator(function* (property) {
-            const propertyOptions = options[property];
-
-            let data = yield fetchProperty(propertyOptions.$fetch, item);
-
-            delete propertyOptions.$fetch;
-
-            if (data !== null) {
-              data = yield computeResults(data, propertyOptions);
-            }
-
-            item[property] = data;
-          });
-
-          return function (_x4) {
-            return _ref3.apply(this, arguments);
-          };
-        })());
-
-        return Promise.resolve(item);
-      }
-
-      // returns a promise that resolves to the data
-      function fetchProperty(fetcher, item) {
-        try {
-          return fetcher.call(item, hook.app);
-        } catch (e) {
-          // console.error(e)
-          debug(e);
-          return Promise.resolve(null);
-        }
-      }
+      return hook;
     });
 
     return function (_x) {
