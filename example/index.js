@@ -68,11 +68,11 @@ articles.hooks({
   after: {
     all: [
       fetch({
-        ownerUser: {
+        _owner: {
           $fetch: function (app) {
             return app.service('users').get(this.owner)
           },
-          userAddresses: {
+          _addresses: {
             $fetch: function (app) {
               return app.service('addresses').find({
                 paginate: false,

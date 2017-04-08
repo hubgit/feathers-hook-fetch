@@ -15,7 +15,7 @@ service.hooks({
   after: {
     all: [
       fetch({
-        ownerUser: {
+        _owner: {
           $fetch: function (app) {
             return app.service('users').get(this.owner)
           }
@@ -35,18 +35,18 @@ service.hooks({
   after: {
     all: [
       fetch({
-        ownerUser: {
+        _owner: {
           $fetch: function (app) {
             return app.service('users').get(this.owner)
           },
-          addresses: {
+          _addresses: {
             $fetch: function (app) {
               return app.service('addresses').find({
-                paginate: false,
                 query: {
                   _id: { $in: this.addresses },
                   $sort: { createdAt: -1 },
-                }
+                },
+                paginate: false
               })
             }
           }
@@ -64,10 +64,10 @@ async hook => {
   const items = hook.method === 'find' ? hook.result.data || hook.result : [hook.result]
 
   await Promise.all(items.map(async item => {
-    item.owner = await app.service('users').get(item.owner)
+    item._owner = await app.service('users').get(item.owner)
 
-    item.owner.addresses = await app.service('addresses').find({
-      query: { id: { $in: item.owner.addresses } },
+    item._owner._addresses = await app.service('addresses').find({
+      query: { id: { $in: item._owner.addresses } },
       paginate: false
     })
   }))
