@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "module": "index.js",
   "scripts": {
-    "test": "jest test.js"
+    "test": "jest test"
   },
   "repository": {
     "type": "git",
@@ -20,8 +20,8 @@
     "url": "https://github.com/hubgit/feathers-hook-fetch/issues"
   },
   "homepage": "https://github.com/hubgit/feathers-hook-fetch#readme",
-  "dependencies": {
-    "debug": "^2.6.3"
+  "engines": {
+    "node": ">=6"
   },
   "devDependencies": {
     "babel-plugin-add-module-exports": "^0.2.1",

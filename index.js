@@ -1,5 +1,3 @@
-const debug = require('debug')('feathers-hook-fetch')
-
 export default function (options) {
   return async function (hook) {
     const computeProperties = async (item, options) => {
@@ -11,7 +9,6 @@ export default function (options) {
         } catch (e) {
           item[property] = null
           console.error(e)
-          debug(e)
           return
         }
 

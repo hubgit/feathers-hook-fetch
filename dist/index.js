@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -14,14 +14,13 @@ exports.default = function (options) {
               var _options$property = options[property];
 
               const $fetch = _options$property.$fetch,
-                    propertyOptions = _objectWithoutProperties(_options$property, ['$fetch']);
+                    propertyOptions = _objectWithoutProperties(_options$property, ["$fetch"]);
 
               try {
                 item[property] = yield $fetch.call(item, hook.app);
               } catch (e) {
                 item[property] = null;
                 console.error(e);
-                debug(e);
                 return;
               }
 
@@ -62,7 +61,5 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
-const debug = require('debug')('feathers-hook-fetch');
-
-module.exports = exports['default'];
+module.exports = exports["default"];
 //# sourceMappingURL=index.js.map
