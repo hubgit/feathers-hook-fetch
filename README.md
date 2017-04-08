@@ -26,7 +26,7 @@ service.hooks({
 })
 ```
 
-### Populate a nested property with a paginated query result
+### Populate a nested property with a de-paginated query result
 
 ```js
 const fetch = require('feathers-hook-fetch')
@@ -41,10 +41,12 @@ service.hooks({
           },
           addresses: {
             $fetch: function (app) {
-              app.service('addresses').find({
-                _id: { $in: this.addresses },
-                $sort: { createdAt: -1 },
-                $limit: 5
+              return app.service('addresses').find({
+                paginate: false,
+                query: {
+                  _id: { $in: this.addresses },
+                  $sort: { createdAt: -1 },
+                }
               })
             }
           }
@@ -53,4 +55,23 @@ service.hooks({
     ]
   }
 })
+```
+
+## Alternatives
+
+If you just want to populate a single property, you could use a custom hook like this:
+
+```js
+async hook => {
+  const items = hook.method === 'find' ? hook.result.data || hook.result : [hook.result]
+
+  await Promise.all(items.map(async item => {
+    item.contacts = await app.service('contacts').find({
+      query: { parentId: item.id },
+      paginate: false
+    })
+  }))
+
+  return hook
+}
 ```

@@ -93,7 +93,7 @@ describe('hook', function () {
       app: {
         service: name => ({
           get: id => Promise.resolve(users[id]),
-          find: query => Promise.resolve({ data: addresses })
+          find: params => Promise.resolve({ data: addresses })
         })
       }
     }
@@ -106,9 +106,11 @@ describe('hook', function () {
         _userAddresses: {
           $fetch: function (app) {
             return app.service('addresses').find({
-              _id: { $in: this.addresses },
-              $sort: { createdAt: -1 },
-              $limit: 5
+              query: {
+                _id: { $in: this.addresses },
+                $sort: { createdAt: -1 },
+                $limit: 5
+              }
             })
           }
         }
@@ -151,7 +153,11 @@ describe('hook', function () {
         },
         _userAddresses: {
           $fetch: function (app) {
-            return app.service('addresses').find({ _id: { $in: this.addresses } })
+            return app.service('addresses').find({
+              query: {
+                _id: { $in: this.addresses }
+              }
+            })
           }
         }
       }

@@ -2,62 +2,31 @@ const debug = require('debug')('feathers-hook-fetch')
 
 export default function (options) {
   return async function (hook) {
-    // return a promise that resolves to the hook
-    hook.result = await computeResults(hook.result, options)
+    const computeProperties = async (item, options) => {
+      await Promise.all(Object.keys(options).map(async property => {
+        const { $fetch, ...propertyOptions } = options[property]
 
-    return hook
-
-    // returns a promise that resolves to an item (or array of items)
-    async function computeResults (item, options) {
-      // an object with paginated items
-      if (Array.isArray(item.data)) {
-        // process each item concurrently
-        item.data = await Promise.all(item.data.map(item => {
-          return computeProperties(item, options)
-        }))
-
-        return item
-      }
-
-      // a single item
-      return computeProperties(item, options)
-    }
-
-    // returns a promise that resolves to the item
-    async function computeProperties (item, options) {
-      const properties = Object.keys(options)
-
-      // process each property
-      const promises = properties.map(async property => {
-        const propertyOptions = options[property]
-
-        let data = await fetchProperty(propertyOptions.$fetch, item)
-
-        delete propertyOptions.$fetch
-
-        if (data !== null) {
-          data = await computeResults(data, propertyOptions)
+        try {
+          item[property] = await $fetch.call(item, hook.app)
+        } catch (e) {
+          item[property] = null
+          console.error(e)
+          debug(e)
+          return
         }
 
-        item[property] = data
-
-        return true
-      })
-
-      await Promise.all(promises)
-
-      return item
+        await computeResults(item[property], propertyOptions)
+      }))
     }
 
-    // returns a promise that resolves to the data
-    async function fetchProperty (fetcher, item) {
-      try {
-        return fetcher.call(item, hook.app)
-      } catch (e) {
-        console.error(e)
-        debug(e)
-        return null
-      }
+    const computeResults = (item, options) => {
+      const items = Array.isArray(item.data) ? item.data : (Array.isArray(item) ? item : [item])
+
+      return Promise.all(items.map(item => computeProperties(item, options)))
     }
+
+    await computeResults(hook.result, options)
+
+    return hook
   }
 }
