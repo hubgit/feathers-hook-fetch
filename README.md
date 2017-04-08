@@ -59,15 +59,15 @@ service.hooks({
 
 ## Alternatives
 
-If you just want to populate a single property, you could use a custom hook like this:
-
 ```js
 async hook => {
   const items = hook.method === 'find' ? hook.result.data || hook.result : [hook.result]
 
   await Promise.all(items.map(async item => {
-    item.contacts = await app.service('contacts').find({
-      query: { parentId: item.id },
+    item.owner = await app.service('users').get(item.owner)
+
+    item.owner.addresses = await app.service('addresses').find({
+      query: { id: { $in: item.owner.addresses } },
       paginate: false
     })
   }))
