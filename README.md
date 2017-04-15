@@ -4,7 +4,7 @@
 
 Call the `fetch` hook with an object that describes the properties to be added to each result.
 
-For each property, add a `$fetch` property that is a function returning a Promise that will eventually resolve with the data to be added.
+For each property, add `$fetch`: a function returning a Promise that will eventually resolve with the data to be added.
 
 ### Populate a property with a single object
 
