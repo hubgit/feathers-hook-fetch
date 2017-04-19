@@ -9,17 +9,16 @@ For each property, add `$fetch`: a function returning a Promise that will eventu
 ### Populate a property with a single object
 
 ```js
+const app = require('feathers')()
 const fetch = require('feathers-hook-fetch')
 
 service.hooks({
   after: {
     all: [
+      // an object describing properties to fetch
       fetch({
-        _owner: {
-          $fetch: function (app) {
-            return app.service('users').get(this.owner)
-          }
-        }
+        // arrow function that fetches the object
+        _authorUser: post => app.service('users').get(post.author)
       })
     ]
   }
@@ -29,28 +28,26 @@ service.hooks({
 ### Populate a nested property with a de-paginated query result
 
 ```js
+const app = require('feathers')()
 const fetch = require('feathers-hook-fetch')
 
 service.hooks({
   after: {
     all: [
+      // an object describing properties to fetch
       fetch({
-        _owner: {
-          $fetch: function (app) {
-            return app.service('users').get(this.owner)
-          },
-          _addresses: {
-            $fetch: function (app) {
-              return app.service('addresses').find({
-                query: {
-                  _id: { $in: this.addresses },
-                  $sort: { createdAt: -1 },
-                },
-                paginate: false
-              })
-            }
+        // an array
+        _authorUser: [
+          // 1. arrow function to fetch the object
+          post => app.service('users').get(post.author),
+          // 2. an object describing other properties to fetch
+          {
+            _userAddresses: user => app.service('addresses').find({
+              query: { user: user._id, $sort: { createdAt: -1 } },
+              paginate: false
+            })
           }
-        }
+        ]
       })
     ]
   }
@@ -64,10 +61,11 @@ async hook => {
   const items = hook.method === 'find' ? hook.result.data || hook.result : [hook.result]
 
   await Promise.all(items.map(async item => {
-    item._owner = await app.service('users').get(item.owner)
+    item._ownerUser = await app.service('users').get(item.owner)
 
-    item._owner._addresses = await app.service('addresses').find({
-      query: { id: { $in: item._owner.addresses } },
+    item._ownerUser._userAddresses = await app.service('addresses').find({
+      // query: { id: { $in: item._ownerUser.addresses } },
+      query: { user: item._ownerUser._id },
       paginate: false
     })
   }))

@@ -2,17 +2,25 @@ export default function (options) {
   return async function (hook) {
     const computeProperties = async (item, options) => {
       await Promise.all(Object.keys(options).map(async property => {
-        const { $fetch, ...propertyOptions } = options[property]
+        let fetch, properties
+
+        if (Array.isArray(options[property])) {
+          [fetch, properties] = options[property]
+        } else {
+          fetch = options[property]
+        }
 
         try {
-          item[property] = await $fetch.call(item, hook.app)
+          item[property] = await fetch(item)
         } catch (e) {
           item[property] = null
           console.error(e)
           return
         }
 
-        await computeResults(item[property], propertyOptions)
+        if (properties) {
+          await computeResults(item[property], properties)
+        }
       }))
     }
 
