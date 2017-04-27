@@ -4,7 +4,9 @@
 
 Call the `fetch` hook with an object that describes the properties to be added to each result.
 
-For each property, add `$fetch`: a function returning a Promise that will eventually resolve with the data to be added.
+For each property, add a function returning a Promise that will eventually resolve with the data to be added.
+
+For nested properties, use an array where the first item is the fetch function and the second item is a description of the nested properties.
 
 ### Populate a property with a single object
 
