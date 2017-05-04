@@ -1,7 +1,7 @@
 const feathers = require('feathers')
 const hooks = require('feathers-hooks')
 const memory = require('feathers-memory')
-const fetch = require('../dist')
+const fetch = require('../lib')
 
 const app = feathers().configure(hooks())
 
