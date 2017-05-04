@@ -6,7 +6,8 @@
   "module": "lib/index.js",
   "scripts": {
     "test": "jest test",
-    "prebuild": "npm run test",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
     "build": "babel -d dist lib"
   },
   "repository": {
@@ -36,6 +37,7 @@
     "feathers-hooks": "^2.0.1",
     "feathers-memory": "^1.1.0",
     "jest": "^19.0.2",
+    "rimraf": "^2.6.1",
     "standard": "^10.0.1"
   },
   "eslintConfig": {
