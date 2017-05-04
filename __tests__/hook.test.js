@@ -1,19 +1,16 @@
-const fetch = require('../dist/index.js')
+const fetch = require('../lib/index.js')
+const app = require('feathers')()
 
-describe('hook', function () {
-  it('should return a function', function () {
+describe.skip('hook', function () {
+  it('should return a function', () => {
     const result = fetch({
-      _ownerUser: {
-        $fetch: function (app) {
-          return app.service('users').get(this.owner)
-        }
-      }
+      _ownerUser: item => app.service('users').get(item.owner)
     })
 
     expect(typeof result).toBe('function')
   })
 
-  it('should update a result', function () {
+  it('should update a result', () => {
     const result = {
       _id: 'test-item',
       title: 'Test',
@@ -39,11 +36,7 @@ describe('hook', function () {
     }
 
     return fetch({
-      _ownerUser: {
-        $fetch: function (app) {
-          return app.service('users').get(this.owner)
-        }
-      }
+      _ownerUser: item => app.service('users').get(item.owner)
     })(hook).then(() => {
       expect(hook.result._ownerUser).toEqual(users['user-1'])
     })
@@ -99,22 +92,16 @@ describe('hook', function () {
     }
 
     return fetch({
-      _ownerUser: {
-        $fetch: function (app) {
-          return app.service('users').get(this.owner)
-        },
-        _userAddresses: {
-          $fetch: function (app) {
-            return app.service('addresses').find({
-              query: {
-                _id: { $in: this.addresses },
-                $sort: { createdAt: -1 },
-                $limit: 5
-              }
-            })
-          }
+      _ownerUser: [
+        item => app.service('users').get(item.owner),
+        {
+          _userAddresses: item => app.service('addresses').find({ query: {
+            _id: {$in: item.addresses},
+            $sort: {createdAt: -1},
+            $limit: 5
+          }})
         }
-      }
+      ]
     })(hook).then(() => {
       expect(hook.result.data[0]._ownerUser).toEqual(users['user-1'])
       expect(hook.result.data[1]._ownerUser).toEqual(users['user-2'])
@@ -147,20 +134,14 @@ describe('hook', function () {
     }
 
     return fetch({
-      _ownerUser: {
-        $fetch: function (app) {
-          return app.service('users').get(this.owner)
-        },
-        _userAddresses: {
-          $fetch: function (app) {
-            return app.service('addresses').find({
-              query: {
-                _id: { $in: this.addresses }
-              }
-            })
-          }
+      _ownerUser: [
+        item => app.service('users').get(item.owner),
+        {
+          _userAddresses: item => app.service('addresses').find({ query: {
+            _id: {$in: this.addresses}
+          }})
         }
-      }
+      ]
     })(hook).then(() => {
       expect(hook.result._ownerUser._userAddresses).toBe(null)
     })
